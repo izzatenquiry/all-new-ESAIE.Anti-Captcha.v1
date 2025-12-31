@@ -1,0 +1,35 @@
+{
+  "name": "ESAIE - All-in-One AI Platform",
+  "short_name": "ESAIE",
+  "description": "Platform AI semua-dalam-satu.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#fff7ed",
+  "theme_color": "#F97316",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": [
+    "business",
+    "productivity",
+    "photo",
+    "video"
+  ],
+  "prefer_related_applications": false,
+  "scope_extensions": [],
+  "icons": [
+    {
+      "src": "https://monoklix.com/wp-content/uploads/2025/11/ESAIE-Logo-latest.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": []
+}
