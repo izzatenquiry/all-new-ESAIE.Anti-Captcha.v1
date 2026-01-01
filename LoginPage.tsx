@@ -5,20 +5,32 @@ import { loginUser } from './services/userService';
 import Spinner from './components/common/Spinner';
 import { type User } from './types';
 import { APP_VERSION } from './services/appConfig';
-import { getTranslations } from './services/translations';
 import { loadData } from './services/indexedDBService';
 
 interface LoginPageProps {
     onLoginSuccess: (user: User) => void;
 }
 
+const errorMessages: Record<string, string> = {
+    emailRequired: 'Email is required to log in.',
+    emailNotRegistered: 'This email is not registered. Please check your email or sign up for an account.',
+    accountInactive: 'Your account is inactive. Please contact support for assistance.',
+    tokenInvalid: 'Your connection token is invalid or has expired. A new one will be assigned automatically.',
+    safetyBlock: 'The request was blocked by the safety filter. Please modify your prompt.',
+    badRequest: 'The AI model reported a problem with the request (Bad Request). Please check your input.',
+    permissionDenied: 'Permission denied. Your API key may be invalid or lack permissions for this model.',
+    resourceExhausted: 'The API is temporarily overloaded (rate limit exceeded). Please wait a moment and try again.',
+    googleUnavailable: 'The AI service is currently unavailable or experiencing issues. Please try again later.',
+    networkError: 'Network error. Please check your internet connection and try again.',
+    networkErrorRetryFailed: 'A network error occurred. We tried a backup server, but it also failed. Please check your internet connection and try again.',
+    unexpectedError: 'An unexpected error occurred. Please try again.',
+};
+
 const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [theme, setTheme] = useState('light'); // Default to light
-    const T = getTranslations().loginPage;
-    const commonT = getTranslations().common;
 
     // Load theme from localStorage
     useEffect(() => {
@@ -53,8 +65,8 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         if (result.success === true) {
             onLoginSuccess(result.user);
         } else {
-            const errorKey = result.message as keyof typeof commonT.errors;
-            setError(commonT.errors[errorKey] || result.message);
+            const errorKey = result.message as string;
+            setError(errorMessages[errorKey] || result.message);
         }
         setIsLoading(false);
     };
@@ -78,10 +90,10 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                             <LogoIcon className="w-40 text-neutral-900 dark:text-white" />
                         </div>
                         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white tracking-tight">
-                            {T.title}
+                            Welcome Back!
                         </h1>
                          <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                            {T.subtitle}
+                            Log in to access the ESAIE AI platform.
                         </p>
                     </div>
 
@@ -101,7 +113,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 className="w-full bg-neutral-50 dark:bg-black/40 border border-neutral-300 dark:border-white/10 rounded-xl px-4 py-3.5 text-neutral-900 dark:text-white placeholder-neutral-500 dark:placeholder-neutral-600 focus:outline-none focus:ring-2 focus:ring-brand-start/50 focus:border-brand-start/50 transition-all font-medium"
-                                placeholder={T.emailPlaceholder}
+                                placeholder="Enter your registered email address"
                                 disabled={isLoading}
                              />
                         </div>
@@ -114,7 +126,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                             >
                                 {isLoading ? <Spinner /> : (
                                     <>
-                                        {T.loginButton}
+                                        Log In
                                         <SparklesIcon className="w-4 h-4 text-white/70" />
                                     </>
                                 )}

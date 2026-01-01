@@ -10,7 +10,6 @@ import {
 import TwoColumnLayout from '../common/TwoColumnLayout';
 import { getStaffMonoklixPrompt } from '../../services/promptManager';
 import { type Language } from '../../types';
-import { getTranslations } from '../../services/translations';
 import { handleApiError } from '../../services/errorHandler';
 
 interface AiAgent {
@@ -64,9 +63,6 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
     const [copied, setCopied] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState(language === 'ms' ? "Bahasa Malaysia" : "English");
 
-    // FIX: Remove 'language' argument from getTranslations calls.
-    const T = getTranslations().staffMonoklixView;
-    const commonT = getTranslations();
 
     const selectedAgent = useMemo(() => aiAgents.find(agent => agent.id === selectedAgentId)!, [selectedAgentId]);
 
@@ -145,8 +141,8 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
     const leftPanel = (
         <>
             <div>
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{T.title}</h1>
-                <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">{T.subtitle}</p>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Staff ESAIE</h1>
+                <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">A team of specialized AI agents to assist you with your tasks.</p>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -175,7 +171,7 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
 
             <div>
                 <label htmlFor="agent-input" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                    {T.inputFor} {selectedAgent.name}
+                    Input for {selectedAgent.name}
                 </label>
                 <textarea
                     id="agent-input"
@@ -189,7 +185,7 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
 
             <div>
                 <label htmlFor="agent-language" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                    {T.outputLanguage}
+                    Output Language
                 </label>
                 <select
                     id="agent-language"
@@ -208,14 +204,14 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
                         disabled={isLoading}
                         className="w-full flex items-center justify-center gap-2 bg-primary-600 text-white font-semibold py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                     >
-                        {isLoading ? <Spinner /> : T.generateButton}
+                        {isLoading ? <Spinner /> : 'Generate'}
                     </button>
                     <button
                         onClick={handleReset}
                         disabled={isLoading}
                         className="flex-shrink-0 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors disabled:opacity-50 text-sm sm:text-base"
                     >
-                        {T.resetButton}
+                        Reset
                     </button>
                 </div>
                 {error && error !== 'Failed' && <p className="text-red-500 dark:text-red-400 mt-1 sm:mt-2 text-center text-xs sm:text-sm">{error}</p>}
@@ -233,13 +229,13 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
                     >
                       {copied ? <CheckCircleIcon className="w-4 h-4 text-green-500"/> : <ClipboardIcon className="w-4 h-4"/>}
                       {/* FIX: Correctly access translation keys from the 'common' object. */}
-                      {copied ? commonT.common.copied : commonT.common.copy}
+                      {copied ? 'Copied!' : 'Copy'}
                     </button>
                     <button
                         onClick={() => downloadText(generatedCopy, `esaie-staff-${selectedAgent.id}.txt`)}
                         className="flex items-center gap-1.5 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 font-semibold py-1.5 px-3 rounded-full hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
                     >
-                        <DownloadIcon className="w-4 h-4" /> {T.download}
+                        <DownloadIcon className="w-4 h-4" /> Download
                     </button>
                 </div>
             )}
@@ -257,7 +253,7 @@ const StaffMonoklixView: React.FC<StaffMonoklixViewProps> = ({ language }) => {
                  <div className="flex items-center justify-center h-full text-center text-neutral-500 dark:text-neutral-600 p-4">
                     <div>
                         <AIAgentIcon className="w-16 h-16 mx-auto" />
-                        <p>{T.outputPlaceholder}</p>
+                        <p>The AI agent's response will appear here.</p>
                     </div>
                 </div>
             )}

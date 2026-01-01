@@ -3,7 +3,6 @@ import { runApiHealthCheck, type HealthCheckResult } from '../../services/gemini
 import { XIcon, CheckCircleIcon, AlertTriangleIcon, RefreshCwIcon } from '../Icons';
 import Spinner from './Spinner';
 import { type User, type Language } from '../../types';
-import { getTranslations } from '../../services/translations';
 
 interface ApiHealthCheckModalProps {
     isOpen: boolean;
@@ -16,8 +15,6 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
     const [isChecking, setIsChecking] = useState(true);
     const [results, setResults] = useState<HealthCheckResult[] | null>(null);
     const [activeApiKey, setActiveApiKey] = useState<string | null | undefined>(null);
-    // FIX: Remove `language` argument from `getTranslations` call.
-    const T = getTranslations().apiHealthCheckModal;
 
     const handleHealthCheck = async () => {
         setIsChecking(true);
@@ -38,7 +35,7 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
             });
             setResults(checkResults);
         } catch (error) {
-            setResults([{ service: T.failed, model: 'N/A', status: 'error', message: error instanceof Error ? error.message : T.unknownError }]);
+            setResults([{ service: 'Health Test Failed', model: 'N/A', status: 'error', message: error instanceof Error ? error.message : 'Unknown error' }]);
         } finally {
             setIsChecking(false);
         }
@@ -73,7 +70,7 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 border-b border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
-                    <h3 className="font-bold text-lg">{T.title}</h3>
+                    <h3 className="font-bold text-lg">API Health Test Summary</h3>
                     <button onClick={onClose} className="p-1 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800"><XIcon className="w-5 h-5" /></button>
                 </div>
 
@@ -81,7 +78,7 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
                     {isChecking ? (
                         <div className="flex flex-col items-center justify-center h-48 gap-4">
                             <Spinner />
-                            <p className="text-neutral-500">{T.checking}</p>
+                            <p className="text-neutral-500">Running system check...</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
@@ -90,23 +87,23 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
                                 className="w-full flex items-center justify-center gap-2 bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors mb-4"
                             >
                                 <RefreshCwIcon className="w-4 h-4" />
-                                {T.rerun}
+                                Rerun Check
                             </button>
                             {user && (
                                 <div className="p-3 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm border-l-4 border-primary-500">
-                                    <p className="font-semibold text-neutral-800 dark:text-white">{T.userDetails}</p>
+                                    <p className="font-semibold text-neutral-800 dark:text-white">User Details</p>
                                     <div className="mt-2 space-y-1 text-xs text-neutral-600 dark:text-neutral-400">
-                                        <div className="flex justify-between"><span>{T.username}</span> <span className="font-medium">{user.username}</span></div>
-                                        <div className="flex justify-between"><span>{T.email}</span> <span className="font-medium">{user.email}</span></div>
-                                        <div className="flex justify-between"><span>{T.status}</span> <span className="font-semibold capitalize">{user.status}</span></div>
+                                        <div className="flex justify-between"><span>Username:</span> <span className="font-medium">{user.username}</span></div>
+                                        <div className="flex justify-between"><span>Email:</span> <span className="font-medium">{user.email}</span></div>
+                                        <div className="flex justify-between"><span>Status:</span> <span className="font-semibold capitalize">{user.status}</span></div>
                                         <div className="flex justify-between">
-                                            <span>{T.lastSeen}</span>
+                                            <span>Last Seen:</span>
                                             <span className="font-medium">
-                                                {user.lastSeenAt ? new Date(user.lastSeenAt).toLocaleString() : T.never}
+                                                {user.lastSeenAt ? new Date(user.lastSeenAt).toLocaleString() : 'Never'}
                                             </span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span>{T.appVersion}</span>
+                                            <span>App Version:</span>
                                             <span className="font-medium">
                                                 {user.appVersion || 'N/A'}
                                             </span>
@@ -115,11 +112,11 @@ const ApiHealthCheckModal: React.FC<ApiHealthCheckModalProps> = ({ isOpen, onClo
                                 </div>
                             )}
                             <div className="flex justify-between items-center p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md text-sm">
-                                <span className="font-semibold text-neutral-600 dark:text-neutral-300">{T.activeKey}</span>
+                                <span className="font-semibold text-neutral-600 dark:text-neutral-300">Active Gemini Key:</span>
                                 {activeApiKey ? (
                                     <span className="font-mono text-green-600 dark:text-green-400">...{activeApiKey.slice(-4)}</span>
                                 ) : (
-                                    <span className="text-red-500 font-semibold">{user ? T.noKey : T.notSet}</span>
+                                    <span className="text-red-500 font-semibold">{user ? 'User has no key' : 'Not Set'}</span>
                                 )}
                             </div>
                             {results && results.map((result, index) => {

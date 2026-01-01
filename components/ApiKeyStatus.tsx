@@ -7,7 +7,6 @@ import { type User, type Language } from '../types';
 import { saveUserPersonalAuthToken, saveUserRecaptchaToken, assignPersonalTokenAndIncrementUsage, getUserProfile } from '../services/userService';
 import { SHARED_ANTICAPTCHA_API_KEY } from '../services/appConfig';
 import { runComprehensiveTokenTest, type TokenTestResult } from '../services/imagenV3Service';
-import { getTranslations } from '../services/translations';
 import eventBus from '../services/eventBus';
 
 // --- NEW: Token Selection Modal ---
@@ -252,8 +251,6 @@ interface ApiKeyStatusProps {
 }
 
 const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, assignTokenProcess, onUserUpdate, onOpenChangeServerModal, language }) => {
-    // FIX: Removed the 'language' argument from getTranslations as it's not expected.
-    const T = getTranslations().apiKeyStatus;
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [isChecking, setIsChecking] = useState(false);
     const [results, setResults] = useState<HealthCheckResult[] | null>(null);
@@ -299,7 +296,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
 
         if (!tokenToCheck) {
             setResults([
-                { service: T.personalToken, model: 'N/A', status: 'degraded', message: T.noPersonalToken }
+                { service: 'Personal Token', model: 'N/A', status: 'degraded', message: 'No personal token assigned' }
             ]);
             setIsChecking(false);
             return;
@@ -310,14 +307,14 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
             
             const formattedResults: HealthCheckResult[] = testResults.map(res => ({
                 service: `${res.service} Service`,
-                model: `${T.personalToken} (...${tokenToCheck.slice(-6)})`,
+                model: `Personal Token (...${tokenToCheck.slice(-6)})`,
                 status: res.success ? 'operational' : 'error',
                 message: res.message
             }));
             
             setResults(formattedResults);
         } catch (error) {
-            setResults([{ service: T.healthCheckFailed, model: 'N/A', status: 'error', message: error instanceof Error ? error.message : 'Unknown error' }]);
+            setResults([{ service: 'Health Check Failed', model: 'N/A', status: 'error', message: error instanceof Error ? error.message : 'Unknown error' }]);
         } finally {
             setIsChecking(false);
         }
@@ -426,7 +423,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
             <button
                 onClick={() => setIsPopoverOpen(!isPopoverOpen)}
                 className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                aria-label={T.ariaLabel}
+                aria-label="API Key Status"
             >
                 <KeyIcon className={`w-5 h-5 ${activeApiKey ? 'text-green-500' : 'text-red-500'}`} />
             </button>
@@ -448,7 +445,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                         
                         <div className="flex flex-col h-full p-4 sm:p-6">
                             <div className="flex justify-between items-center mb-6 shrink-0 border-b-[0.5px] border-neutral-200/80 dark:border-white/5 pb-4">
-                                <h3 className="font-bold text-lg text-neutral-900 dark:text-white">{T.title}</h3>
+                                <h3 className="font-bold text-lg text-neutral-900 dark:text-white">Account Status</h3>
                                 <button onClick={() => setIsPopoverOpen(false)} className="p-2 rounded-full bg-neutral-100 dark:bg-white/5 hover:bg-neutral-200 dark:hover:bg-white/10 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white transition-colors">
                                     <XIcon className="w-4 h-4" />
                                 </button>
@@ -456,11 +453,11 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
 
                             <div className="space-y-3 text-sm flex-1 overflow-y-auto custom-scrollbar">
                         <div className="flex justify-between items-center p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md">
-                            <span className="font-semibold text-neutral-600 dark:text-neutral-300">{T.sharedApiKey}:</span>
+                            <span className="font-semibold text-neutral-600 dark:text-neutral-300">Shared API Key:</span>
                             {activeApiKey ? (
                                 <span className="font-mono text-green-600 dark:text-green-400">...{activeApiKey.slice(-4)}</span>
                             ) : (
-                                <span className="text-red-600 dark:text-red-400 font-semibold">{T.notLoaded}</span>
+                                <span className="text-red-600 dark:text-red-400 font-semibold">Not Loaded</span>
                             )}
                         </div>
                         
@@ -468,13 +465,13 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                         <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md">
                             <div className="flex justify-between items-center gap-2">
                                 <div className="flex items-center gap-2 overflow-hidden flex-1">
-                                    <span className="font-semibold text-neutral-600 dark:text-neutral-300 whitespace-nowrap">{T.currentServer}:</span>
+                                    <span className="font-semibold text-neutral-600 dark:text-neutral-300 whitespace-nowrap">Current Server:</span>
                                     {currentServer ? (
                                         <span className="font-mono text-xs bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300 px-2 py-1 rounded truncate">
                                             {currentServer.replace('https://', '').replace('http://', '').replace('.esaie.tech', '').toUpperCase()}
                                         </span>
                                     ) : (
-                                        <span className="text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">{T.notSet}</span>
+                                        <span className="text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">Not Set</span>
                                     )}
                                 </div>
                                 <button
@@ -484,7 +481,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                     }}
                                     className="text-xs font-semibold bg-primary-600 text-white px-3 py-1.5 rounded-md hover:bg-primary-700 transition-colors flex-shrink-0"
                                 >
-                                    {T.changeServer.replace(' Server', '')}
+                                    Change
                                 </button>
                             </div>
                         </div>
@@ -493,14 +490,14 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                          <div className="p-2 bg-neutral-100 dark:bg-neutral-800 rounded-md">
                             {isEditingToken ? (
                                 <div className="space-y-2">
-                                    <span className="font-semibold text-neutral-600 dark:text-neutral-300">{T.authToken}:</span>
+                                    <span className="font-semibold text-neutral-600 dark:text-neutral-300">Auth Token:</span>
                                     <div className="relative">
                                         <input 
                                             type={showPersonalToken ? "text" : "password"}
                                             value={tokenInput} 
                                             onChange={(e) => setTokenInput(e.target.value)} 
                                             className="w-full text-xs font-mono bg-white dark:bg-neutral-700 rounded p-1 pr-8 border-[0.5px] border-neutral-300/80 dark:border-neutral-600/80 focus:ring-1 focus:ring-primary-500"
-                                            placeholder={T.enterToken}
+                                            placeholder="Enter new token"
                                             autoFocus
                                         />
                                         <button 
@@ -513,23 +510,23 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                     </div>
                                     <div className="flex gap-2 items-center">
                                         <button onClick={handleSaveToken} disabled={saveStatus === 'saving'} className="text-xs font-semibold py-1 px-3 rounded bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 w-16 text-center">
-                                            {saveStatus === 'saving' ? <Spinner/> : T.save}
+                                            {saveStatus === 'saving' ? <Spinner/> : 'Save'}
                                         </button>
                                         <button onClick={() => setIsEditingToken(false)} className="text-xs font-semibold py-1 px-3 rounded bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500">
-                                            {T.cancel}
+                                            Cancel
                                         </button>
-                                        {saveStatus === 'success' && <span className="text-xs text-green-600 dark:text-green-400 font-bold">{T.saved}</span>}
-                                        {saveStatus === 'error' && <span className="text-xs text-red-600 dark:text-red-400 font-bold">{T.saveError}</span>}
+                                        {saveStatus === 'success' && <span className="text-xs text-green-600 dark:text-green-400 font-bold">Saved!</span>}
+                                        {saveStatus === 'error' && <span className="text-xs text-red-600 dark:text-red-400 font-bold">Error!</span>}
                                     </div>
                                 </div>
                             ) : (
                                 <div className="flex justify-between items-center gap-2">
                                     <div className="flex items-center gap-2 overflow-hidden flex-1">
-                                        <span className="font-semibold text-neutral-600 dark:text-neutral-300 whitespace-nowrap">{T.authToken}:</span>
+                                        <span className="font-semibold text-neutral-600 dark:text-neutral-300 whitespace-nowrap">Auth Token:</span>
                                         {currentUser.personalAuthToken ? (
                                             <span className="font-mono text-neutral-700 dark:text-neutral-300 text-xs truncate">...{currentUser.personalAuthToken.slice(-6)}</span>
                                         ) : (
-                                            <span className="text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">{T.notAssigned}</span>
+                                            <span className="text-yellow-600 dark:text-yellow-400 font-semibold text-xs whitespace-nowrap">Not Assigned</span>
                                         )}
                                     </div>
                                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -544,7 +541,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                             onClick={() => { setIsEditingToken(true); setTokenInput(currentUser.personalAuthToken || ''); setSaveStatus('idle'); }} 
                                             className="text-xs font-semibold bg-primary-600 text-white px-3 py-1.5 rounded-md hover:bg-primary-700 transition-colors"
                                         >
-                                            {T.update}
+                                            Update
                                         </button>
                                     </div>
                                 </div>
@@ -575,13 +572,13 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                     </div>
                                     <div className="flex gap-2 items-center">
                                         <button onClick={handleSaveAntiCaptcha} disabled={antiCaptchaSaveStatus === 'saving'} className="text-xs font-semibold py-1 px-3 rounded bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50 w-16 text-center">
-                                            {antiCaptchaSaveStatus === 'saving' ? <Spinner/> : T.save}
+                                            {antiCaptchaSaveStatus === 'saving' ? <Spinner/> : 'Save'}
                                         </button>
                                         <button onClick={() => setIsEditingAntiCaptcha(false)} className="text-xs font-semibold py-1 px-3 rounded bg-neutral-200 dark:bg-neutral-600 hover:bg-neutral-300 dark:hover:bg-neutral-500">
-                                            {T.cancel}
+                                            Cancel
                                         </button>
-                                        {antiCaptchaSaveStatus === 'success' && <span className="text-xs text-green-600 dark:text-green-400 font-bold">{T.saved}</span>}
-                                        {antiCaptchaSaveStatus === 'error' && <span className="text-xs text-red-600 dark:text-red-400 font-bold">{T.saveError}</span>}
+                                        {antiCaptchaSaveStatus === 'success' && <span className="text-xs text-green-600 dark:text-green-400 font-bold">Saved!</span>}
+                                        {antiCaptchaSaveStatus === 'error' && <span className="text-xs text-red-600 dark:text-red-400 font-bold">Error!</span>}
                                     </div>
                                 </div>
                             ) : (
@@ -606,7 +603,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                             onClick={() => { setIsEditingAntiCaptcha(true); setAntiCaptchaInput(antiCaptchaApiKey || ''); setAntiCaptchaSaveStatus('idle'); }} 
                                             className="text-xs font-semibold bg-primary-600 text-white px-3 py-1.5 rounded-md hover:bg-primary-700 transition-colors"
                                         >
-                                            {T.update}
+                                            Update
                                         </button>
                                     </div>
                                 </div>
@@ -622,7 +619,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                         className="w-full flex items-center justify-center gap-2 bg-orange-600 dark:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg hover:bg-orange-700 dark:hover:bg-orange-600 transition-colors disabled:opacity-50 text-sm"
                                     >
                                         {isChecking ? <Spinner /> : <RefreshCwIcon className="w-4 h-4" />}
-                                        {T.healthCheck}
+                                        Health Test
                                     </button>
                                 </div>
                             </div>
@@ -632,7 +629,7 @@ const ApiKeyStatus: React.FC<ApiKeyStatusProps> = ({ activeApiKey, currentUser, 
                                     {results.map((result, index) => {
                                         const { icon, text } = getStatusUi(result.status);
                                         const statusText = result.status === 'error' 
-                                            ? T.unavailable 
+                                            ? 'Unavailable' 
                                             : result.status.charAt(0).toUpperCase() + result.status.slice(1);
 
                                         return (

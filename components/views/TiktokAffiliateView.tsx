@@ -10,7 +10,6 @@ import { type User, type Language } from '../../types';
 import { incrementImageUsage } from '../../services/userService';
 import { handleApiError } from '../../services/errorHandler';
 import { editOrComposeWithImagen } from '../../services/imagenV3Service';
-import { getTranslations } from '../../services/translations';
 import TwoColumnLayout from '../common/TwoColumnLayout';
 import CreativeDirectionPanel from '../common/CreativeDirectionPanel';
 import { getInitialCreativeDirectionState, type CreativeDirectionState } from '../../services/creativeDirectionService';
@@ -110,8 +109,6 @@ const TiktokAffiliateView: React.FC<TiktokAffiliateViewProps> = ({ onReEdit, onC
     const [faceImageUploadKey, setFaceImageUploadKey] = useState(Date.now() + 1);
     const [progress, setProgress] = useState(0);
     
-    const T = getTranslations().tiktokAffiliateView;
-    const commonT = getTranslations().common;
 
     useEffect(() => {
         try {
@@ -440,34 +437,34 @@ const TiktokAffiliateView: React.FC<TiktokAffiliateViewProps> = ({ onReEdit, onC
     const leftPanel = (
       <>
           <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{T.title}</h1>
-            <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">{T.subtitle}</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">AI Model Photos</h1>
+            <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">Generate realistic, UGC-style photos for TikTok affiliate marketing.</p>
           </div>
           
-          <Section title={T.assetAndModel}>
+          <Section title="Your Assets & Model">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <ImageUpload key={productImageUploadKey} id="tiktok-product-upload" onImageUpload={(base64, mimeType) => setProductImage({base64, mimeType})} onRemove={() => setProductImage(null)} title={T.productPhoto} description={T.productPhotoDesc} language={language}/>
-                  <ImageUpload key={faceImageUploadKey} id="tiktok-face-upload" onImageUpload={(base64, mimeType) => setFaceImage({base64, mimeType})} onRemove={() => setFaceImage(null)} title={T.facePhoto} description={T.facePhotoDesc} language={language}/>
+                  <ImageUpload key={productImageUploadKey} id="tiktok-product-upload" onImageUpload={(base64, mimeType) => setProductImage({base64, mimeType})} onRemove={() => setProductImage(null)} title="Product Photo" description="Clear, front-facing" language={language}/>
+                  <ImageUpload key={faceImageUploadKey} id="tiktok-face-upload" onImageUpload={(base64, mimeType) => setFaceImage({base64, mimeType})} onRemove={() => setFaceImage(null)} title="Face Photo (Optional)" description="Clear, front-facing" language={language}/>
               </div>
           </Section>
 
-          <Section title={T.customPrompt}>
-              <textarea id="custom-prompt-model" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} placeholder={T.customPromptPlaceholder} rows={3} className="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg p-3 text-sm text-neutral-800 dark:text-neutral-300 focus:ring-2 focus:ring-primary-500 focus:outline-none transition" />
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">{T.customPromptHelp}</p>
+          <Section title="Custom Prompt (Optional)">
+              <textarea id="custom-prompt-model" value={customPrompt} onChange={(e) => setCustomPrompt(e.target.value)} placeholder='e.g., "a cheerful model holding this product in a bright kitchen"' rows={3} className="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg p-3 text-sm text-neutral-800 dark:text-neutral-300 focus:ring-2 focus:ring-primary-500 focus:outline-none transition" />
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">This will override all creative direction settings below.</p>
           </Section>
           
-          <Section title={T.creativeDirection}>
+          <Section title="Creative Direction">
             <div className="space-y-4">
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label className={`block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors ${!!faceImage ? 'text-gray-400 dark:text-gray-500' : ''}`}>{T.gender}</label>
+                        <label className={`block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors ${!!faceImage ? 'text-gray-400 dark:text-gray-500' : ''}`}>Model Gender</label>
                         <div className="grid grid-cols-2 gap-3">
-                            <CreativeButton label={T.female} isSelected={gender === 'Female'} onClick={() => setGender('Female')} icon={UserIcon} disabled={!!faceImage} />
-                            <CreativeButton label={T.male} isSelected={gender === 'Male'} onClick={() => setGender('Male')} icon={UserIcon} disabled={!!faceImage} />
+                            <CreativeButton label="Female" isSelected={gender === 'Female'} onClick={() => setGender('Female')} icon={UserIcon} disabled={!!faceImage} />
+                            <CreativeButton label="Male" isSelected={gender === 'Male'} onClick={() => setGender('Male')} icon={UserIcon} disabled={!!faceImage} />
                         </div>
                     </div>
                     <div>
-                        <label htmlFor="model-face-select" className={`block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors ${!!faceImage ? 'text-gray-400 dark:text-gray-500' : ''}`}>{T.modelFace}</label>
+                        <label htmlFor="model-face-select" className={`block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1 transition-colors ${!!faceImage ? 'text-gray-400 dark:text-gray-500' : ''}`}>Model Face/Ethnicity</label>
                         <SelectControl id="model-face-select" value={modelFace} onChange={setModelFace} options={modelFaceOptions} disabled={!!faceImage} />
                     </div>
                 </div>
@@ -488,14 +485,14 @@ const TiktokAffiliateView: React.FC<TiktokAffiliateViewProps> = ({ onReEdit, onC
            <div className="pt-4 mt-auto">
                 <div className="flex gap-4">
                     <button onClick={handleGenerate} disabled={isLoading} className="w-full mt-2 flex items-center justify-center gap-2 bg-primary-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-                        {isLoading ? <Spinner /> : T.generateButton}
+                        {isLoading ? <Spinner /> : 'Generate'}
                     </button>
                     <button
                         onClick={handleReset}
                         disabled={isLoading}
                         className="flex-shrink-0 mt-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold py-3 px-4 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors disabled:opacity-50"
                     >
-                        {T.resetButton}
+                        Reset
                     </button>
                 </div>
                 {error && !isLoading && <p className="text-red-500 dark:text-red-400 mt-2 text-center">{error}</p>}
@@ -546,7 +543,7 @@ const TiktokAffiliateView: React.FC<TiktokAffiliateViewProps> = ({ onReEdit, onC
                                 <Spinner />
                                 {isLoading && numberOfImages > 1 && (
                                     <p className="text-sm text-neutral-500">
-                                        {`${commonT.generating} (${progress}/${numberOfImages})`}
+                                        {`Generating... (${progress}/${numberOfImages})`}
                                     </p>
                                 )}
                             </div>
@@ -578,12 +575,12 @@ const TiktokAffiliateView: React.FC<TiktokAffiliateViewProps> = ({ onReEdit, onC
                 <div className="flex flex-col items-center justify-center h-full gap-2">
                     <Spinner />
                     <p className="text-sm text-neutral-500">
-                        {`${commonT.generating}${numberOfImages > 1 ? ` (1/${numberOfImages})` : ''}`}
+                        {`Generating...${numberOfImages > 1 ? ` (1/${numberOfImages})` : ''}`}
                     </p>
                     {isLoading && numberOfImages > 1 && <p className="text-xs text-neutral-400">Completed: {progress} / {numberOfImages}</p>}
                 </div>
            ) : (
-              <div className="text-center text-neutral-500 dark:text-neutral-600"><TikTokIcon className="w-16 h-16 mx-auto" /><p>{T.outputPlaceholder}</p></div>
+              <div className="text-center text-neutral-500 dark:text-neutral-600"><TikTokIcon className="w-16 h-16 mx-auto" /><p>Your generated model photos will appear here.</p></div>
           )}
       </>
     );

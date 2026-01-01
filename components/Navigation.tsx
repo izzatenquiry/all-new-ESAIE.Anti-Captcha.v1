@@ -16,7 +16,6 @@ import {
     UserIcon,
     RefreshCwIcon
 } from './Icons';
-import { getTranslations } from '../services/translations';
 
 interface NavigationProps {
   activeView: View;
@@ -48,7 +47,6 @@ const Navigation: React.FC<NavigationProps> = ({
     isMenuOpen,
     setIsMenuOpen 
 }) => {
-  const T = getTranslations().sidebar;
 
   // --- 2100 MOBILE FLOATING DOCK (Bottom) ---
   const MobileDock = () => (

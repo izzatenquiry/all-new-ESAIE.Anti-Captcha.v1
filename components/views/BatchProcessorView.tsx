@@ -6,7 +6,6 @@ import Spinner from '../common/Spinner';
 import { UploadIcon, PlayIcon, TrashIcon, CheckCircleIcon, XIcon, ClipboardListIcon } from '../Icons';
 import { MODELS } from '../../services/aiConfig';
 import { type BatchItem, type BatchProcessorPreset, type Language } from '../../types';
-import { getTranslations } from '../../services/translations';
 
 interface Log {
   timestamp: string;

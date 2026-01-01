@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import eventBus from '../services/eventBus';
 import { XIcon, TrashIcon, TerminalIcon } from './Icons';
-import { getTranslations } from '../services/translations';
 
 interface LogEntry {
   level: 'log' | 'warn' | 'error' | 'debug';
@@ -19,7 +18,6 @@ const ConsoleLogSidebar: React.FC<ConsoleLogSidebarProps> = ({ isOpen, onClose }
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const logContainerRef = useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = useRef(true);
-  const T = getTranslations().consoleLogSidebar;
 
   useEffect(() => {
     const handleLog = (data: LogEntry) => {

@@ -8,7 +8,6 @@ import {
 } from '../Icons';
 import Spinner from '../common/Spinner';
 import Tabs, { type Tab } from '../common/Tabs';
-import { getTranslations } from '../../services/translations';
 import { getFormattedCacheStats, clearVideoCache } from '../../services/videoCacheService';
 import { runComprehensiveTokenTest, type TokenTestResult } from '../../services/imagenV3Service';
 import eventBus from '../../services/eventBus';
@@ -19,9 +18,8 @@ import FlowAccountView from './FlowAccountView';
 type SettingsTabId = 'profile' | 'flowLogin' | 'admin' | 'flowAccount';
 
 const getTabs = (isAdmin: boolean): Tab<SettingsTabId>[] => {
-    const T = getTranslations().settingsView;
     const tabs: Tab<SettingsTabId>[] = [
-        { id: 'profile', label: T.tabs.profile },
+        { id: 'profile', label: 'User Profile' },
         { id: 'flowLogin', label: 'Token Setting' },
     ];
     
@@ -55,41 +53,40 @@ const ClaimTokenModal: React.FC<{
   onRetry: () => void;
   onClose: () => void;
 }> = ({ status, error, onRetry, onClose }) => {
-    const T = getTranslations().claimTokenModal;
     return (
     <div className="fixed inset-0 bg-black/70 flex flex-col items-center justify-center z-50 p-4 animate-zoomIn" aria-modal="true" role="dialog">
         <div className="bg-white dark:bg-neutral-900 rounded-lg shadow-xl p-8 text-center max-w-sm w-full">
         {status === 'searching' && (
             <>
             <Spinner />
-            <h2 className="text-lg sm:text-xl font-semibold mt-4">{T.searchingTitle}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mt-4">Searching for New Token</h2>
             <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm sm:text-base">
-                {T.searchingMessage}
+                Please wait while we find an available connection slot...
             </p>
             </>
         )}
         {status === 'success' && (
             <>
             <CheckCircleIcon className="w-12 h-12 text-green-500 mx-auto" />
-            <h2 className="text-lg sm:text-xl font-semibold mt-4">{T.successTitle}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mt-4">Token Claimed!</h2>
             <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm sm:text-base">
-                {T.successMessage}
+                A new secure token has been assigned to your account.
             </p>
             </>
         )}
         {status === 'error' && (
             <>
             <AlertTriangleIcon className="w-12 h-12 text-red-500 mx-auto" />
-            <h2 className="text-lg sm:text-xl font-semibold mt-4">{T.errorTitle}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mt-4">Assignment Failed</h2>
             <p className="text-neutral-500 dark:text-neutral-400 mt-2 text-sm sm:text-base">
-                {error || T.errorMessageDefault}
+                {error || 'An error occurred'}
             </p>
             <div className="mt-6 flex gap-4">
                 <button onClick={onClose} className="w-full bg-neutral-200 dark:bg-neutral-700 font-semibold py-2 px-4 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors">
-                {T.closeButton}
+                Close
                 </button>
                 <button onClick={onRetry} className="w-full bg-primary-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-primary-700 transition-colors">
-                {T.retryButton}
+                Try Again
                 </button>
             </div>
             </>
@@ -106,9 +103,6 @@ interface ProfilePanelProps extends Pick<SettingsViewProps, 'currentUser' | 'onU
 }
 
 const ProfilePanel: React.FC<ProfilePanelProps> = ({ currentUser, onUserUpdate, language, setLanguage, assignTokenProcess }) => {
-    const T = getTranslations().settingsView;
-    const T_Profile = T.profile;
-    const T_Api = T.api;
 
     const [fullName, setFullName] = useState(currentUser.fullName || currentUser.username);
     const [email, setEmail] = useState(currentUser.email);
@@ -140,25 +134,25 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ currentUser, onUserUpdate, 
 
     const getAccountStatus = (user: User): { text: string; colorClass: string } => {
         switch (user.status) {
-            case 'admin': return { text: T_Profile.status.admin, colorClass: 'text-green-500' };
-            case 'lifetime': return { text: T_Profile.status.lifetime, colorClass: 'text-green-500' };
-            case 'subscription': return { text: T_Profile.status.subscription, colorClass: 'text-green-500' };
-            case 'trial': return { text: T_Profile.status.trial, colorClass: 'text-yellow-500' };
-            case 'inactive': return { text: T_Profile.status.inactive, colorClass: 'text-red-500' };
-            case 'pending_payment': return { text: T_Profile.status.pending, colorClass: 'text-yellow-500' };
-            default: return { text: T_Profile.status.unknown, colorClass: 'text-neutral-500' };
+            case 'admin': return { text: 'Admin', colorClass: 'text-green-500' };
+            case 'lifetime': return { text: 'Lifetime', colorClass: 'text-green-500' };
+            case 'subscription': return { text: 'Subscription', colorClass: 'text-green-500' };
+            case 'trial': return { text: 'Trial', colorClass: 'text-yellow-500' };
+            case 'inactive': return { text: 'Inactive', colorClass: 'text-red-500' };
+            case 'pending_payment': return { text: 'Pending Payment', colorClass: 'text-yellow-500' };
+            default: return { text: 'Unknown', colorClass: 'text-neutral-500' };
         }
     };
 
     const handleSave = async () => {
         if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
-        setStatus({ type: 'loading', message: T_Profile.saving });
+        setStatus({ type: 'loading', message: 'Saving...' });
         const result = await updateUserProfile(currentUser.id, { fullName, email });
         if (result.success === false) {
-            setStatus({ type: 'error', message: T_Profile.fail.replace('{message}', result.message) });
+            setStatus({ type: 'error', message: `Failed: ${result.message}` });
         } else {
             onUserUpdate(result.user);
-            setStatus({ type: 'success', message: T_Profile.success });
+            setStatus({ type: 'success', message: 'Profile updated successfully!' });
         }
         statusTimeoutRef.current = window.setTimeout(() => setStatus({ type: 'idle', message: '' }), 4000);
     };
@@ -220,7 +214,7 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ currentUser, onUserUpdate, 
         const isExpired = Date.now() > expiryDate.getTime();
         expiryInfo = (
             <span className={isExpired ? 'text-red-500 font-bold' : ''}>
-                {T_Profile.expiresOn} {expiryDate.toLocaleDateString()} {isExpired && `(${T_Profile.expired})`}
+                Expires on {expiryDate.toLocaleDateString()} {isExpired && '(Expired)'}
             </span>
         );
     }
@@ -236,18 +230,18 @@ const ProfilePanel: React.FC<ProfilePanelProps> = ({ currentUser, onUserUpdate, 
                 />
             )}
 
-            <h2 className="text-lg sm:text-xl font-semibold mb-6">{T_Profile.title}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mb-6">User Profile</h2>
             
             {/* Account Status Box */}
             <div className="mb-6 p-4 bg-neutral-100 dark:bg-neutral-800/50 rounded-lg">
-                <p className="text-sm text-neutral-600 dark:text-neutral-400">{T_Profile.accountStatus} <span className={`font-bold ${accountStatus.colorClass}`}>{accountStatus.text}</span></p>
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">Account Status: <span className={`font-bold ${accountStatus.colorClass}`}>{accountStatus.text}</span></p>
                 {expiryInfo && <p className="text-sm text-neutral-500 dark:text-neutral-500 mt-1">{expiryInfo}</p>}
             </div>
 
             {/* User Profile Form - Moved Here */}
             <div className="space-y-6 mb-8 border-b border-neutral-200 dark:border-neutral-800 pb-8">
                 <div>
-                    <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">{T_Profile.email}</label>
+                    <label className="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-1">Email</label>
                     <input type="email" value={email} readOnly disabled className="w-full bg-neutral-200 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg p-2 cursor-not-allowed" />
                 </div>
             </div>
@@ -261,7 +255,6 @@ interface CacheManagerPanelProps {
 }
 
 const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) => {
-    const T = getTranslations().settingsView.cache;
   const [stats, setStats] = useState<{
     size: string;
     count: number;
@@ -286,7 +279,7 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
   }, []);
 
   const handleClearCache = async () => {
-    if (!confirm(T.confirmClear)) {
+    if (!confirm('Are you sure you want to clear the entire video cache? This cannot be undone.')) {
       return;
     }
 
@@ -294,10 +287,10 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
     try {
       await clearVideoCache();
       await loadStats();
-      alert(T.clearSuccess);
+      alert('Video cache cleared successfully!');
     } catch (error) {
       console.error('Failed to clear cache:', error);
-      alert(T.clearFail);
+      alert('Failed to clear cache. Please try again.');
     } finally {
       setIsClearing(false);
     }
@@ -308,9 +301,9 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
         <div className="flex items-center gap-3 mb-6">
           <DatabaseIcon className="w-8 h-8 text-primary-500" />
           <div>
-            <h2 className="text-lg sm:text-xl font-semibold">{T.title}</h2>
+            <h2 className="text-lg sm:text-xl font-semibold">Video Cache Manager</h2>
             <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400">
-              {T.subtitle}
+              Manage your locally cached videos
             </p>
           </div>
         </div>
@@ -346,7 +339,7 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div className="p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-800/30 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg flex items-center justify-between transition-all hover:border-green-200 dark:hover:border-green-900/50">
                 <div>
-                  <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">{T.storageUsed}</p>
+                  <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Storage Used</p>
                   <p className="text-xl sm:text-2xl font-bold text-neutral-800 dark:text-neutral-200">{stats.size}</p>
                 </div>
                 <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400">
@@ -355,7 +348,7 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
               </div>
               <div className="p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-800/30 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg flex items-center justify-between transition-all hover:border-yellow-200 dark:hover:border-yellow-900/50">
                 <div>
-                  <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">{T.videosCached}</p>
+                  <p className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider mb-1">Videos Cached</p>
                   <p className="text-xl sm:text-2xl font-bold text-neutral-800 dark:text-neutral-200">{stats.count}</p>
                 </div>
                 <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400">
@@ -366,37 +359,37 @@ const CacheManagerPanel: React.FC<CacheManagerPanelProps> = ({ currentUser }) =>
             
             <div className="p-3 sm:p-4 bg-orange-50 dark:bg-orange-900/20 border-[0.5px] border-orange-200 dark:border-orange-800 rounded-lg">
               <h3 className="text-[11px] sm:text-xs font-semibold text-orange-900 dark:text-orange-100 mb-2">
-                {T.howItWorks}
+                How Video Caching Works
               </h3>
               <ul className="text-[11px] sm:text-xs text-orange-800 dark:text-orange-200 space-y-1">
-                <li>{T.l1}</li>
-                <li>{T.l2}</li>
-                <li>{T.l3}</li>
-                <li>{T.l4}</li>
+                <li>• Videos are stored locally and persistently in your browser (using IndexedDB).</li>
+                <li>• There are no automatic limits on size or number of videos.</li>
+                <li>• Storage is only limited by the amount of space your browser has available.</li>
+                <li>• Videos persist even after closing the browser.</li>
               </ul>
             </div>
 
             <div className="flex gap-3 w-full">
               <button onClick={loadStats} disabled={isLoading} className="flex-1 flex items-center justify-center gap-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold py-2 px-4 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors disabled:opacity-50">
-                <RefreshCwIcon className="w-4 h-4" /> {T.refresh}
+                <RefreshCwIcon className="w-4 h-4" /> Refresh Stats
               </button>
               <button onClick={handleClearCache} disabled={isClearing || stats.count === 0} className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                {isClearing ? (<><Spinner /> {T.clearing}</>) : (<><TrashIcon className="w-4 h-4" /> {T.clear}</>)}
+                {isClearing ? (<><Spinner /> Clearing...</>) : (<><TrashIcon className="w-4 h-4" /> Clear All Cache</>)}
               </button>
             </div>
 
             <div className="border-t border-neutral-200 dark:border-neutral-700 pt-4">
-              <h3 className="text-[11px] sm:text-xs font-semibold mb-2">💡 {T.tips}</h3>
+              <h3 className="text-[11px] sm:text-xs font-semibold mb-2">💡 Tips</h3>
               <ul className="text-[11px] sm:text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
-                <li>{T.tip1}</li>
-                <li>{T.tip2}</li>
-                <li>{T.tip3}</li>
-                <li>{T.tip4}</li>
+                <li>• Clear cache if videos are not loading properly</li>
+                <li>• Old videos are automatically removed to save space</li>
+                <li>• Cache is shared across all tabs of this website</li>
+                <li>• Incognito mode does not persist cache</li>
               </ul>
             </div>
           </div>
         ) : (
-          <div className="text-center py-12 text-neutral-500">{T.failLoad}</div>
+          <div className="text-center py-12 text-neutral-500">Failed to load cache statistics</div>
         )}
       </div>
   );
@@ -406,7 +399,6 @@ const SettingsView: React.FC<SettingsViewProps> = ({ currentUser, tempApiKey, on
     const [activeTab, setActiveTab] = useState<SettingsTabId>('profile');
     const isAdmin = currentUser.role === 'admin' || currentUser.status === 'admin' || currentUser.status === 'lifetime';
     const tabs = getTabs(isAdmin);
-    const T = getTranslations().settingsView;
 
     const renderContent = () => {
         switch (activeTab) {

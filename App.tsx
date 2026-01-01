@@ -21,7 +21,6 @@ import ApiKeyStatus from './components/ApiKeyStatus';
 import { supabase, type Database } from './services/supabaseClient';
 import { runComprehensiveTokenTest } from './services/imagenV3Service';
 import ConsoleLogSidebar from './components/ConsoleLogSidebar';
-import { getTranslations } from './services/translations';
 import { getAnnouncements } from './services/contentService';
 import MasterDashboardView from './components/views/MasterDashboardView';
 import TokenMasterView from './components/views/TokenMasterView';
@@ -72,8 +71,6 @@ const App: React.FC = () => {
   const [needsSilentTokenAssignment, setNeedsSilentTokenAssignment] = useState(false);
   const [showServerModal, setShowServerModal] = useState(false);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  
-  const T = getTranslations().app;
 
   // ... (Keep existing useEffects for loading settings, user session, etc.)
   useEffect(() => {

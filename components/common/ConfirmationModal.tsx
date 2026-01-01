@@ -1,6 +1,5 @@
 import React from 'react';
 import { AlertTriangleIcon } from '../Icons';
-import { getTranslations } from '../../services/translations';
 import { type Language } from '../../types';
 
 interface ConfirmationModalProps {
@@ -26,8 +25,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmButtonClass = 'bg-red-600 hover:bg-red-700',
   language,
 }) => {
-  // FIX: Remove `language` argument from `getTranslations` call.
-  const T = getTranslations().confirmationModal;
   if (!isOpen) return null;
 
   return (
@@ -50,14 +47,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             type="button"
             className="px-4 py-2 text-sm font-semibold bg-neutral-200 dark:bg-neutral-600 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-500 transition-colors"
           >
-            {cancelText || T.cancel}
+            {cancelText || 'Cancel'}
           </button>
           <button
             onClick={onConfirm}
             type="button"
             className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors ${confirmButtonClass}`}
           >
-            {confirmText || T.confirm}
+            {confirmText || 'Confirm'}
           </button>
         </div>
       </div>

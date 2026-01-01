@@ -1,6 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { UploadIcon, TrashIcon } from '../Icons';
-import { getTranslations } from '../../services/translations';
 import { type Language } from '../../types';
 
 interface ImageUploadProps {
@@ -23,12 +22,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const T = getTranslations().imageUpload;
 
   const handleFileChange = useCallback((file: File | null) => {
     if (file) {
       if (!['image/png', 'image/jpeg', 'image/jpg'].includes(file.type)) {
-        alert(T.invalidType);
+        alert('Invalid file type. Please upload a PNG or JPG image.');
         if (inputRef.current) {
           inputRef.current.value = '';
         }
@@ -46,7 +44,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       };
       reader.readAsDataURL(file);
     }
-  }, [onImageUpload, T.invalidType]);
+      }, [onImageUpload]);
 
   const onDrop = useCallback((event: React.DragEvent<HTMLLabelElement>) => {
     event.preventDefault();
@@ -99,7 +97,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         ) : (
           <div className="flex flex-col items-center text-neutral-500 dark:text-neutral-400">
             <UploadIcon className="w-6 h-6 mb-2" />
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">{title || T.title}</p>
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">{title || 'Upload Image'}</p>
           </div>
         )}
       </label>
@@ -107,12 +105,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         <button 
           onClick={handleRemove}
           className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
-          aria-label={T.remove}
+          aria-label="Remove image"
         >
           <TrashIcon className="w-4 h-4" />
         </button>
       )}
-      {fileName && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 text-center">{T.file} {fileName}</p>}
+      {fileName && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 text-center">File: {fileName}</p>}
       {description && <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 text-center">{description}</p>}
     </div>
   );

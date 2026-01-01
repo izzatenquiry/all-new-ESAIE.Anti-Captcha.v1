@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ClipboardIcon, CheckCircleIcon } from '../Icons';
-import { getTranslations } from '../../services/translations';
 // FIX: Add missing Language type for component props
 import { type Language } from '../../types';
 
@@ -11,7 +10,6 @@ interface MarkdownRendererProps {
 
 const CodeBlock: React.FC<{ language: string, codeContent: string }> = ({ language, codeContent }) => {
     const [copied, setCopied] = useState(false);
-    const T = getTranslations().common;
     const handleCopy = () => {
         if (!codeContent) return;
         navigator.clipboard.writeText(codeContent);
@@ -28,7 +26,7 @@ const CodeBlock: React.FC<{ language: string, codeContent: string }> = ({ langua
                     className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white text-xs px-2 py-1 rounded bg-neutral-300 dark:bg-neutral-700 hover:bg-neutral-400 dark:hover:bg-neutral-600 transition-colors"
                 >
                     {copied ? <CheckCircleIcon className="w-3 h-3 text-green-500" /> : <ClipboardIcon className="w-3 h-3" />}
-                    {copied ? T.copied : T.copy}
+                    {copied ? 'Copied!' : 'Copy'}
                 </button>
             </div>
             <pre className="p-4 overflow-x-auto">

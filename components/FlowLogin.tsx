@@ -4,7 +4,6 @@ import { SHARED_ANTICAPTCHA_API_KEY } from '../services/appConfig';
 import { type User } from '../types';
 import { KeyIcon, CheckCircleIcon, XIcon, AlertTriangleIcon, InformationCircleIcon, EyeIcon, EyeOffIcon, SparklesIcon, ClipboardIcon } from './Icons';
 import Spinner from './common/Spinner';
-import { getTranslations } from '../services/translations';
 import { runComprehensiveTokenTest, type TokenTestResult } from '../services/imagenV3Service';
 import { testAntiCaptchaKey } from '../services/antiCaptchaService';
 import { getEmailPasswordFromCode } from '../services/flowAccountService';
@@ -27,8 +26,6 @@ const FlowLogin: React.FC<FlowLoginProps> = ({ currentUser, onUserUpdate }) => {
     const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const recaptchaSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const isInitialMount = useRef(true);
-    const T = getTranslations().settingsView;
-    const T_Api = T.api;
 
     // Anti-Captcha Configuration State - Load from currentUser
     const [enableAntiCaptcha, setEnableAntiCaptcha] = useState(true); // Always enabled
@@ -515,7 +512,7 @@ const FlowLogin: React.FC<FlowLoginProps> = ({ currentUser, onUserUpdate }) => {
 
                     {testStatus === 'testing' && (
                         <div className="flex items-center gap-2 text-sm text-neutral-500">
-                            <Spinner /> {T_Api.testing}
+                            <Spinner /> Testing token...
                         </div>
                     )}
                     
@@ -770,7 +767,7 @@ const FlowLogin: React.FC<FlowLoginProps> = ({ currentUser, onUserUpdate }) => {
                     <div className="mt-8 pt-8 border-t border-neutral-200 dark:border-neutral-700">
                         <h3 className="text-base sm:text-lg font-bold mb-4 text-neutral-800 dark:text-neutral-200 flex items-center gap-2">
                             <KeyIcon className="w-5 h-5 text-primary-500" />
-                            {T_Api.title}
+                            ESAIE API Keys
                         </h3>
                         
                         {/* Shared Key Info */}
@@ -778,20 +775,20 @@ const FlowLogin: React.FC<FlowLoginProps> = ({ currentUser, onUserUpdate }) => {
                             <div className="flex items-start gap-2 sm:gap-3">
                                 <InformationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600 dark:text-orange-400 flex-shrink-0 mt-0.5" />
                                 <p className="text-[11px] sm:text-xs text-orange-800 dark:text-orange-200">
-                                    {T_Api.description}
+                                    All users share a common ESAIE API key for accessing AI services. This key is automatically loaded when you log in.
                                 </p>
                             </div>
                             <div className="mt-3 flex items-center gap-2 text-sm font-medium">
-                                <span className="text-neutral-600 dark:text-neutral-400">{T_Api.sharedStatus}</span>
+                                <span className="text-neutral-600 dark:text-neutral-400">Status:</span>
                                 {sessionStorage.getItem('esaie_session_api_key') ? (
                                     <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
                                         <CheckCircleIcon className="w-4 h-4" />
-                                        {T_Api.connected}
+                                        Connected
                                     </span>
                                 ) : (
                                     <span className="flex items-center gap-1.5 text-red-500">
                                         <XIcon className="w-4 h-4" />
-                                        {T_Api.notLoaded}
+                                        Not Loaded
                                     </span>
                                 )}
                             </div>

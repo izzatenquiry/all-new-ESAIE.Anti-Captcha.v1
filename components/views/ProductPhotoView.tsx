@@ -8,7 +8,6 @@ import { CameraIcon, DownloadIcon, WandIcon, VideoIcon, AlertTriangleIcon, Refre
 import TwoColumnLayout from '../common/TwoColumnLayout';
 import { getProductPhotoPrompt } from '../../services/promptManager';
 import { type Language, type User } from '../../types';
-import { getTranslations } from '../../services/translations';
 import { editOrComposeWithImagen } from '../../services/imagenV3Service';
 import { handleApiError } from '../../services/errorHandler';
 import { incrementImageUsage } from '../../services/userService';
@@ -71,8 +70,6 @@ const ProductPhotoView: React.FC<ProductPhotoViewProps> = ({ onReEdit, onCreateV
   const [imageUploadKey, setImageUploadKey] = useState(Date.now());
   const [progress, setProgress] = useState(0);
   
-  const T = getTranslations().productPhotoView;
-  const commonT = getTranslations().common;
 
   useEffect(() => {
     try {
@@ -355,24 +352,24 @@ const ProductPhotoView: React.FC<ProductPhotoViewProps> = ({ onReEdit, onCreateV
   const leftPanel = (
     <>
       <div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">{T.title}</h1>
-        <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">{T.subtitle}</p>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">AI Product Photos</h1>
+        <p className="text-sm sm:text-base text-neutral-500 dark:text-neutral-400 mt-1">Place your products in professional AI-generated scenes.</p>
       </div>
 
-      <Section title={T.uploadProduct}>
-        <ImageUpload key={imageUploadKey} id="product-photo-upload" onImageUpload={(base64, mimeType) => setProductImage({ base64, mimeType })} onRemove={handleRemoveImage} title={T.uploadTitle} language={language} />
+      <Section title="Upload Your Product">
+        <ImageUpload key={imageUploadKey} id="product-photo-upload" onImageUpload={(base64, mimeType) => setProductImage({ base64, mimeType })} onRemove={handleRemoveImage} title="Upload Product Photo" language={language} />
       </Section>
 
-      <Section title={T.customPrompt}>
+      <Section title="Custom Prompt (Optional)">
         <textarea
           id="custom-prompt"
           value={customPrompt}
           onChange={(e) => setCustomPrompt(e.target.value)}
-          placeholder={T.customPromptPlaceholder}
+          placeholder='e.g., "place this on a marble table with soft morning light"'
           rows={3}
           className="w-full bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-lg p-3 text-sm text-neutral-800 dark:text-neutral-300 focus:ring-2 focus:ring-primary-500 focus:outline-none transition"
         />
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">{T.customPromptHelp}</p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">If you fill this in, it will override all creative direction settings below.</p>
       </Section>
       
       <CreativeDirectionPanel
@@ -393,14 +390,14 @@ const ProductPhotoView: React.FC<ProductPhotoViewProps> = ({ onReEdit, onCreateV
                 disabled={isLoading}
                 className="w-full mt-2 flex items-center justify-center gap-2 bg-primary-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
-                {isLoading ? <Spinner /> : T.generateButton}
+                {isLoading ? <Spinner /> : 'Generate'}
             </button>
             <button
                 onClick={handleReset}
                 disabled={isLoading}
                 className="flex-shrink-0 mt-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200 font-semibold py-3 px-4 rounded-lg hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors disabled:opacity-50"
             >
-                {T.resetButton}
+                Reset
             </button>
           </div>
           {error && !isLoading && <p className="text-red-500 dark:text-red-400 mt-2 text-center">{error}</p>}
@@ -483,13 +480,13 @@ const ProductPhotoView: React.FC<ProductPhotoViewProps> = ({ onReEdit, onCreateV
             <div className="flex flex-col items-center justify-center h-full gap-2">
                 <Spinner />
                 <p className="text-sm text-neutral-500">
-                    {`${commonT.generating}${numberOfImages > 1 ? ` (1/${numberOfImages})` : ''}`}
+                    {`Generating...${numberOfImages > 1 ? ` (1/${numberOfImages})` : ''}`}
                 </p>
                 {isLoading && numberOfImages > 1 && <p className="text-xs text-neutral-400">Completed: {progress} / {numberOfImages}</p>}
             </div>
         ) : (
           <div className="text-center text-neutral-500 dark:text-neutral-600">
-            <CameraIcon className="w-16 h-16 mx-auto" /><p>{T.outputPlaceholder}</p>
+            <CameraIcon className="w-16 h-16 mx-auto" /><p>Your generated product photos will appear here.</p>
           </div>
         )}
     </>

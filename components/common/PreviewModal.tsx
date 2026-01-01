@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { type HistoryItem, type Language } from '../../types';
 import { XIcon, ChevronLeftIcon, ChevronRightIcon } from '../Icons';
-import { getTranslations } from '../../services/translations';
 
 interface PreviewModalProps {
   item: HistoryItem | null;
@@ -15,8 +14,6 @@ interface PreviewModalProps {
 }
 
 const PreviewModal: React.FC<PreviewModalProps> = ({ item, onClose, getDisplayUrl, onNext, onPrevious, hasNext, hasPrevious, language }) => {
-  // FIX: Remove `language` argument from `getTranslations` call.
-  const T = getTranslations().common;
   
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -52,7 +49,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ item, onClose, getDisplayUr
             <button
                 onClick={(e) => { e.stopPropagation(); onPrevious(); }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-2 hover:bg-white/40 transition-colors z-10"
-                aria-label={T.previousItem}
+                aria-label="Previous Item"
             >
                 <ChevronLeftIcon className="w-8 h-8" />
             </button>
@@ -65,7 +62,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ item, onClose, getDisplayUr
         <button
           onClick={onClose}
           className="absolute -top-5 -right-5 bg-white text-black rounded-full p-2 hover:scale-110 transition-transform z-10 shadow-lg"
-          aria-label={T.closePreview}
+          aria-label="Close Preview"
         >
           <XIcon className="w-6 h-6" />
         </button>
@@ -89,7 +86,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({ item, onClose, getDisplayUr
             <button
                 onClick={(e) => { e.stopPropagation(); onNext(); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 text-white rounded-full p-2 hover:bg-white/40 transition-colors z-10"
-                aria-label={T.nextItem}
+                aria-label="Next Item"
             >
                 <ChevronRightIcon className="w-8 h-8" />
             </button>
