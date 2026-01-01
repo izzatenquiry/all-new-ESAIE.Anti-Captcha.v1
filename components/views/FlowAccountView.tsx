@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { getAllFlowAccounts, addFlowAccount, updateFlowAccount, removeFlowAccount, type FlowAccount } from '../../services/flowAccountService';
 import { TrashIcon, PlusIcon, EyeIcon, EyeOffIcon, CheckCircleIcon, XIcon, PencilIcon } from '../Icons';
 import Spinner from '../common/Spinner';
@@ -318,9 +319,9 @@ const FlowAccountView: React.FC<FlowAccountViewProps> = ({ language }) => {
       </div>
 
       {/* Add Account Modal */}
-      {isAddModalOpen && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 max-w-md w-full">
+      {isAddModalOpen && createPortal(
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] overflow-y-auto p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 max-w-md w-full my-auto">
             <h3 className="text-lg font-semibold mb-4">Add Flow Account</h3>
             
             <div className="space-y-4">
@@ -386,12 +387,13 @@ const FlowAccountView: React.FC<FlowAccountViewProps> = ({ language }) => {
             </div>
           </div>
         </div>
+        , document.body
       )}
 
       {/* Edit Account Modal */}
-      {isEditModalOpen && selectedAccount && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 max-w-md w-full">
+      {isEditModalOpen && selectedAccount && createPortal(
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[9999] overflow-y-auto p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-lg p-6 max-w-md w-full my-auto">
             <h3 className="text-lg font-semibold mb-4">Edit Flow Account ({selectedAccount.code})</h3>
             
             <div className="space-y-4">
@@ -459,6 +461,7 @@ const FlowAccountView: React.FC<FlowAccountViewProps> = ({ language }) => {
             </div>
           </div>
         </div>
+        , document.body
       )}
 
       {/* Remove Confirmation Modal */}

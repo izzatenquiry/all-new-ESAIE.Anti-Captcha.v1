@@ -16,6 +16,7 @@ const translations = {
             errors: {
                 emailRequired: 'Email is required to log in.',
                 emailNotRegistered: 'This email is not registered. Please check your email or sign up for an account.',
+                accountInactive: 'Your account is inactive. Please contact support for assistance.',
                 tokenInvalid: 'Your connection token is invalid or has expired. A new one will be assigned automatically.',
                 safetyBlock: 'The request was blocked by the safety filter. Please modify your prompt.',
                 badRequest: 'The AI model reported a problem with the request (Bad Request). Please check your input.',

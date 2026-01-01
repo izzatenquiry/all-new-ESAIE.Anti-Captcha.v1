@@ -84,6 +84,12 @@ export const loginUser = async (email: string): Promise<LoginResult> => {
     
     if (userData && !userError) {
         const typedData = userData as UserProfileData;
+        
+        // Check if user status is inactive
+        if (typedData.status === 'inactive') {
+            return { success: false, message: 'accountInactive' };
+        }
+        
         const user = mapProfileToUser(typedData);
         return { success: true, user };
     }
@@ -152,7 +158,7 @@ export const updateUserStatus = async (userId: string, status: UserStatus): Prom
 /**
  * Sets a user to the 'subscription' status and calculates their expiry date.
  */
-export const updateUserSubscription = async (userId: string, expiryMonths: 6 | 12): Promise<boolean> => {
+export const updateUserSubscription = async (userId: string, expiryMonths: 1 | 6 | 12): Promise<boolean> => {
     const expiryDate = new Date();
     expiryDate.setMonth(expiryDate.getMonth() + expiryMonths);
 

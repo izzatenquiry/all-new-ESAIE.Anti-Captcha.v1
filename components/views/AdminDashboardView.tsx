@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { getAllUsers, updateUserStatus, replaceUsers, exportAllUserData, forceUserLogout, updateUserSubscription, saveUserPersonalAuthToken, addNewUser, removeUser, updateUserBatch02 } from '../../services/userService';
 import { assignEmailCodeToUser, getAllFlowAccounts, resetEmailCodeFromUser, type FlowAccount } from '../../services/flowAccountService';
 import { type User, type UserStatus, type UserRole, type Language } from '../../types';
@@ -123,7 +124,7 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [newStatus, setNewStatus] = useState<UserStatus>('trial');
-    const [subscriptionDuration, setSubscriptionDuration] = useState<6 | 12 | 'lifetime'>(6);
+    const [subscriptionDuration, setSubscriptionDuration] = useState<1 | 6 | 12>(6);
     const [personalToken, setPersonalToken] = useState<string>('');
     const [batch02, setBatch02] = useState<string>(''); // Keep for backward compatibility but not used in UI
     const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | 'loading'; message: string } | null>(null);
@@ -183,12 +184,8 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
     const openEditModal = (user: User) => {
         setSelectedUser(user);
         setNewStatus(user.status);
-        // Initialize subscriptionDuration based on user status
-        if (user.status === 'lifetime') {
-            setSubscriptionDuration('lifetime');
-        } else {
-            setSubscriptionDuration(6); // Default to 6 months
-        }
+        // Initialize subscriptionDuration - default to 6 months
+        setSubscriptionDuration(6);
         setPersonalToken(user.personalAuthToken || '');
         setBatch02(user.batch_02 || ''); // Keep for backward compatibility
         setAssignMode('auto');
@@ -211,9 +208,6 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
         const statusPromise = new Promise<{ success: boolean, message?: string }>(async (resolve) => {
             // Determine the actual target status
             let targetStatus = newStatus;
-            if (subscriptionDuration === 'lifetime') {
-                targetStatus = 'lifetime';
-            }
             
             const isUpgradingToVeo = (targetStatus === 'lifetime' || targetStatus === 'subscription') &&
                                     (selectedUser.status !== 'lifetime' && selectedUser.status !== 'subscription');
@@ -224,16 +218,12 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
             }
             
             // Check if status actually needs to be updated
-            // Always update if subscriptionDuration is 'lifetime' (even if status is already 'lifetime')
-            if (targetStatus === selectedUser.status && subscriptionDuration !== 'lifetime') {
+            if (targetStatus === selectedUser.status && targetStatus !== 'subscription') {
                 return resolve({ success: true });
             }
             
             let success = false;
-            // If subscriptionDuration is 'lifetime', always set status to 'lifetime'
-            if (subscriptionDuration === 'lifetime') {
-                success = await updateUserStatus(selectedUser.id, 'lifetime');
-            } else if (targetStatus === 'subscription') {
+            if (targetStatus === 'subscription') {
                 success = await updateUserSubscription(selectedUser.id, subscriptionDuration);
             } else {
                 success = await updateUserStatus(selectedUser.id, targetStatus);
@@ -643,9 +633,9 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
                 </div>
             </div>
             
-            {isAddUserModalOpen && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" aria-modal="true" role="dialog">
-                    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4">
+            {isAddUserModalOpen && createPortal(
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] overflow-y-auto p-4" aria-modal="true" role="dialog">
+                    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-6 w-full max-w-md my-auto">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-bold">Add New User</h3>
                             <button onClick={() => setIsAddUserModalOpen(false)} className="p-1 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700">
@@ -696,11 +686,12 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
                         </div>
                     </div>
                 </div>
+                , document.body
             )}
 
-            {isModalOpen && selectedUser && (
-                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" aria-modal="true" role="dialog">
-                    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-6 w-full max-w-md m-4">
+            {isModalOpen && selectedUser && createPortal(
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[9999] overflow-y-auto p-4" aria-modal="true" role="dialog">
+                    <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl p-6 w-full max-w-md my-auto">
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-bold">Edit User</h3>
                             <button onClick={() => setIsModalOpen(false)} className="p-1 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700">
@@ -997,19 +988,16 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
                                     </label>
                                     <div className="flex gap-4">
                                         <label className="flex items-center">
+                                            <input type="radio" name="duration" value={1} checked={subscriptionDuration === 1} onChange={() => setSubscriptionDuration(1)} className="form-radio" />
+                                            <span className="ml-2">1 Month</span>
+                                        </label>
+                                        <label className="flex items-center">
                                             <input type="radio" name="duration" value={6} checked={subscriptionDuration === 6} onChange={() => setSubscriptionDuration(6)} className="form-radio" />
                                             <span className="ml-2">6 Months</span>
                                         </label>
                                         <label className="flex items-center">
                                             <input type="radio" name="duration" value={12} checked={subscriptionDuration === 12} onChange={() => setSubscriptionDuration(12)} className="form-radio" />
                                             <span className="ml-2">12 Months</span>
-                                        </label>
-                                        <label className="flex items-center">
-                                            <input type="radio" name="duration" value="lifetime" checked={subscriptionDuration === 'lifetime'} onChange={() => {
-                                                setSubscriptionDuration('lifetime');
-                                                setNewStatus('lifetime');
-                                            }} className="form-radio" />
-                                            <span className="ml-2">Lifetime</span>
                                         </label>
                                     </div>
                                 </div>
@@ -1048,6 +1036,7 @@ const AdminDashboardView: React.FC<AdminDashboardViewProps> = ({ language }) => 
                         </div>
                     </div>
                 </div>
+                , document.body
             )}
             
             {isConfirmLogoutOpen && selectedUser && (
